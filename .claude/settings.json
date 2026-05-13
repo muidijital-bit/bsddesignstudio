@@ -10,7 +10,10 @@
       "Bash(git -C /Users/mui/bsd-design-studio ls-files --cached)",
       "WebFetch(domain:sweet-heart-cf70.cemtunc64.workers.dev)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5175/)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(curl -s http://localhost:5174)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(kill -9 64986 65333)"
     ]
   }
 }
