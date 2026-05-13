@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PROJECTS, CATEGORIES, PILLARS, CLIENTS, SOCIALS, HERO_SLIDES } from './data';
 import './index.css';
 
@@ -47,6 +47,7 @@ function Nav({ active, onJump, scrolled, lightMode, setLightMode }) {
   const items = [
     { id: 'home', label: 'Anasayfa' },
     { id: 'projects', label: 'Projeler' },
+    { id: 'about', label: 'Hakkımızda' },
     { id: 'references', label: 'Referanslar' },
     { id: 'portfolio', label: 'Portfolyo' },
   ];
@@ -55,10 +56,7 @@ function Nav({ active, onJump, scrolled, lightMode, setLightMode }) {
     <>
       <header className={'nav ' + (scrolled ? 'scrolled' : '')}>
         <div className="brand" onClick={() => jump('home')}>
-          <div className="glyph"><span className="gl-bsd">BSD</span></div>
-          <div className="word">
-            <span className="w-white"><span className="ds">DESIGN</span><span className="st">STUDIO</span></span>
-          </div>
+          <img src="/logo.png" alt="BSD Design Studio" className="brand-logo" />
         </div>
         <nav className="links">
           {items.map(it => (
@@ -70,7 +68,6 @@ function Nav({ active, onJump, scrolled, lightMode, setLightMode }) {
         </nav>
         <div className="meta">
           <LightToggle mode={lightMode} onChange={setLightMode} />
-          <button className="pill pill-cta" onClick={() => jump('contact')}>İletişime Geç <span className="ar">→</span></button>
           <button className="hamburger" onClick={() => setMenuOpen(v => !v)} aria-label="Menü">
             <span className={menuOpen ? 'open' : ''}></span>
             <span className={menuOpen ? 'open' : ''}></span>
@@ -94,12 +91,27 @@ function Nav({ active, onJump, scrolled, lightMode, setLightMode }) {
   );
 }
 
+function Divider() {
+  return <div className="bsd-divider" />;
+}
+
 function Hero({ onJump }) {
   const [i, setI] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+
   useEffect(() => {
     const id = setInterval(() => setI(v => (v + 1) % HERO_SLIDES.length), 6500);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const progress = Math.min(scrollY / 600, 1);
+
   return (
     <section id="home" className="hero">
       {HERO_SLIDES.map((s, idx) => (
@@ -114,66 +126,99 @@ function Hero({ onJump }) {
           <button key={idx} className={idx === i ? 'active' : ''} onClick={() => setI(idx)}></button>
         ))}
       </div>
-      <div className="content">
+      <div className="hero-center" style={{ opacity: 1 - progress * 1.4 }}>
         <h1>
-          Tasarım,<br/>
-          <span className="it">ışık</span> ve<br/>
-          mekan.
+          Tasarım, <span className="it">ışık</span> ve mekan.
         </h1>
-        <div className="hero-cta">
-          <button className="btn gold" onClick={() => onJump('projects')}>Projelerimiz <span className="ar">→</span></button>
-          <button className="btn ghost" onClick={() => onJump('contact')}>Teklif Al</button>
-        </div>
       </div>
-      <div className="scrollhint">
-        <span className="mono">Kaydır</span>
-        <div className="bar"></div>
-        <span className="mono" style={{ color: 'var(--gold)' }}>{HERO_SLIDES[i].num}</span>
+      <div className="scroll-down" style={{ opacity: 1 - progress * 2 }} onClick={() => onJump('projects')}>
+        <div className="scroll-down-mouse">
+          <div className="scroll-down-wheel"></div>
+        </div>
+        <span>Aşağı Kaydır</span>
       </div>
     </section>
   );
 }
 
 function Featured({ openProject }) {
-  const [f, setF] = useState('All');
-  const list = useMemo(() => PROJECTS.filter(p => f === 'All' || p.cat === f), [f]);
-  const spans = ['s7', 's5', 's5', 's7', 's8', 's4', 's12', 's6', 's6'];
+  const [f, setF] = useState('Reklam');
+  const list = useMemo(() => f ? PROJECTS.filter(p => p.cat === f) : PROJECTS, [f]);
   return (
     <section id="projects" className="featured" style={{ paddingTop: 0 }}>
       <div className="section" style={{ padding: 'clamp(80px, 12vw, 140px) 0 40px' }}>
-        <div className="sec-head">
-          <div className="left">
-            <div className="num">— Seçilmiş İşler · 002</div>
-            <div className="eyebrow">İşlerimiz</div>
-          </div>
-          <h2>Öne Çıkan <span className="it">işler.</span></h2>
-          <div className="desc">Reklam uygulamalarından iç mimarlığa, mobilya üretiminden LED tabela sistemlerine seçilmiş referans işler.</div>
-        </div>
         <div className="filters">
           {CATEGORIES.map(c => (
-            <button key={c} className={'chip' + (f === c ? ' on' : '')} onClick={() => setF(c)}>{c}</button>
+            <button key={c} className={'chip' + (f === c ? ' on' : '')} onClick={() => setF(f === c ? null : c)}>{c}</button>
           ))}
           <span className="count">{list.length} / {PROJECTS.length} işler</span>
         </div>
       </div>
       <div className="masonry">
-        {list.map((p, idx) => (
-          <article key={p.id} className={'card ' + (spans[idx % spans.length] || 's6')} onClick={() => openProject(p.id)}>
+        {list.map((p) => (
+          <article key={p.id} className="card" onClick={() => openProject(p.id)}>
             <div className="pic" style={{ backgroundImage: `url("${p.img}")` }}></div>
-            <div className="label">
-              <span className="l">{p.no} · {p.cat}</span>
-              <span className="r">{p.status}</span>
+            <div className="card-top">
+              <span className="card-no">{p.no}</span>
+              <span className="card-cat">{p.cat}</span>
             </div>
-            <div className="corner"></div>
-            <div className="info">
-              <h3>{p.title} <span className="it">{p.titleIt}</span></h3>
-              <div style={{ textAlign: 'right' }}>
-                <div className="yr">{p.where}</div>
-                <div className="yr" style={{ color: 'var(--gold)' }}>{p.year}</div>
+            <div className="card-info">
+              <div className="card-title-row">
+                <h3>{p.title} <span className="it">{p.titleIt}</span></h3>
+              </div>
+              <div className="card-meta-row">
+                <span className="card-status">{p.status}</span>
+                <span className="card-year">{p.year}</span>
               </div>
             </div>
           </article>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  return (
+    <section id="about" className="about">
+      <div className="about-inner">
+        <div className="about-left">
+          <span className="eyebrow" style={{ color: 'var(--gold)' }}>— Hakkımızda · 003</span>
+          <img src="/logo.png" alt="BSD Design Studio" className="about-logo" />
+          <div className="about-rule"></div>
+          <p className="about-lead">
+            Kütahya merkezli bir tasarım ve üretim stüdyosuyuz. 2014'ten bu yana markaları görünür kılıyor, mekanları değere dönüştürüyoruz.
+          </p>
+          <p className="about-body">
+            İç & dış mekan reklamcılık, iç mimarlık ve mobilya tasarım-üretim alanlarında bütünleşik hizmet sunuyoruz. Tasarımdan üretime, montajdan teslimata her adımı kendi bünyemizde yönetiyor; aracısız ve eksiksiz sonuç taahhüt ediyoruz.
+          </p>
+          <div className="about-tags">
+            {['Reklam & Tabela', 'LED Sistemleri', 'İç Mimarlık', 'Mobilya Üretim'].map(t => (
+              <span key={t} className="about-tag">{t}</span>
+            ))}
+          </div>
+        </div>
+        <div className="about-right">
+          <div className="about-img"></div>
+          <div className="about-stats">
+            <div className="about-stat">
+              <div className="n">120<span className="plus">+</span></div>
+              <div className="lbl">Tamamlanan Proje</div>
+            </div>
+            <div className="about-stat">
+              <div className="n">10<span className="plus">+</span></div>
+              <div className="lbl">Yıllık Deneyim</div>
+            </div>
+            <div className="about-stat">
+              <div className="n">47</div>
+              <div className="lbl">Marka Referansı</div>
+            </div>
+            <div className="about-stat">
+              <div className="n">3</div>
+              <div className="lbl">Hizmet Alanı</div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -253,26 +298,6 @@ function References() {
 }
 
 function Portfolio({ openProject }) {
-  const ref = useRef(null);
-  const barRef = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    const bar = barRef.current;
-    if (!el || !bar) return;
-    const onScroll = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      const p = max > 0 ? el.scrollLeft / max : 0;
-      bar.style.width = (10 + p * 90) + '%';
-    };
-    el.addEventListener('scroll', onScroll);
-    onScroll();
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
-  const scrollBy = (dir) => {
-    const el = ref.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * (el.clientWidth * 0.7), behavior: 'smooth' });
-  };
   return (
     <section id="portfolio" className="portfolio">
       <div className="head">
@@ -284,31 +309,23 @@ function Portfolio({ openProject }) {
           Tüm işlerimizden seçme kareler. Her biri, bir marka kimliği, mekan dönüşümü ya da üretim hikâyesinin belgesidir.
         </div>
       </div>
-      <div className="scroller" ref={ref}>
+      <div className="portfolio-grid">
         {PROJECTS.map((p, i) => (
           <article key={p.id} className="slide-card" onClick={() => openProject(p.id)}>
             <div className="pic" style={{ backgroundImage: `url("${p.img}")` }}>
               <div></div>
             </div>
             <div className="topmeta">
-              <span>KARE {String(i + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}</span>
+              <span>{String(i + 1).padStart(2, '0')}</span>
               <span className="r">{p.cat}</span>
             </div>
             <div className="corners"></div>
             <div className="info">
               <h3>{p.title} <span className="it">{p.titleIt}</span></h3>
-              <div className="meta">{p.where}<br/>{p.year} · {p.area}</div>
+              <div className="meta">{p.year} · {p.where}</div>
             </div>
           </article>
         ))}
-      </div>
-      <div className="barRow">
-        <span className="label">Kaydırın → <b>{PROJECTS.length} kare</b></span>
-        <div className="bar"><i ref={barRef}></i></div>
-        <div className="arrows">
-          <button className="ab" onClick={() => scrollBy(-1)} aria-label="prev">←</button>
-          <button className="ab" onClick={() => scrollBy(1)} aria-label="next">→</button>
-        </div>
       </div>
     </section>
   );
@@ -504,7 +521,9 @@ function ProjectDetail({ id, onClose, openProject }) {
 function Footer({ onJump }) {
   return (
     <footer className="footer">
-      <div className="brand-lg">BSD <span className="it">design</span> studio™</div>
+      <div className="footer-brand">
+        <img src="/logo.png" alt="BSD Design Studio" className="footer-logo" />
+      </div>
       <div>
         <h5>Menü</h5>
         <ul>
@@ -525,6 +544,9 @@ function Footer({ onJump }) {
       </div>
       <div className="footer-bot">
         <span>© BSD Design Studio · 2014 — 2026</span>
+        <button className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          Yukarı Çık ↑
+        </button>
         <a href="https://muimedya.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>Created by muimedya.com</a>
       </div>
     </footer>
@@ -567,7 +589,7 @@ export default function App() {
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 60);
-      const sections = ['home', 'projects', 'references', 'portfolio', 'contact'];
+      const sections = ['home', 'projects', 'about', 'references', 'portfolio', 'contact'];
       let cur = 'home';
       for (const s of sections) {
         const el = document.getElementById(s);
@@ -582,7 +604,9 @@ export default function App() {
 
   const onJump = (id) => {
     const el = document.getElementById(id);
-    if (el) window.scrollTo({ top: el.offsetTop - 10, behavior: 'smooth' });
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: 'smooth' });
   };
 
   return (
@@ -590,12 +614,21 @@ export default function App() {
       <CursorGlow />
       <Nav active={active} onJump={onJump} scrolled={scrolled} lightMode={lightMode} setLightMode={setLightMode} />
       <Hero onJump={onJump} />
-      <Featured openProject={setOpenId} />
-      <Studio />
-      <References />
-      <Portfolio openProject={setOpenId} />
-      <CTA onJump={onJump} />
-      <Contact />
+      <Divider />
+      <div className="sf"><Featured openProject={setOpenId} /></div>
+      <Divider />
+      <div className="sf"><About /></div>
+      <Divider />
+      <div className="sf"><Studio /></div>
+      <Divider />
+      <div className="sf"><References /></div>
+      <Divider />
+      <div className="sf"><Portfolio openProject={setOpenId} /></div>
+      <Divider />
+      <div className="sf"><CTA onJump={onJump} /></div>
+      <Divider />
+      <div className="sf"><Contact /></div>
+      <Divider />
       <Footer onJump={onJump} />
       <KvkkBanner />
       {openId && <ProjectDetail id={openId} onClose={() => setOpenId(null)} openProject={setOpenId} />}
