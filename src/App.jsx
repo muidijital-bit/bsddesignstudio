@@ -18,56 +18,33 @@ function CursorGlow() {
   return <div className="cursor-glow" />;
 }
 
-function LightToggle({ mode, onChange }) {
-  return (
-    <button className={'light-toggle' + (mode === 'white' ? ' white' : '')} onClick={() => onChange(mode === 'day' ? 'white' : 'day')} title={mode === 'day' ? 'Beyaz ışığa geç' : 'Gün ışığına geç'}>
-      {/* ışık simgesi */}
-      <svg className="lt-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="10" cy="10" r="3.2" stroke="currentColor" strokeWidth="1.3"/>
-        <line x1="10" y1="1.5" x2="10" y2="3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        <line x1="10" y1="16.5" x2="10" y2="18.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        <line x1="1.5" y1="10" x2="3.5" y2="10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        <line x1="16.5" y1="10" x2="18.5" y2="10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        <line x1="4.1" y1="4.1" x2="5.5" y2="5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        <line x1="14.5" y1="14.5" x2="15.9" y2="15.9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        <line x1="15.9" y1="4.1" x2="14.5" y2="5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-        <line x1="5.5" y1="14.5" x2="4.1" y2="15.9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-      </svg>
-      <span className="lt-labels">
-        <span className={'lt-opt' + (mode === 'day' ? ' on' : '')}>Gün Işığı</span>
-        <span className="lt-div">|</span>
-        <span className={'lt-opt' + (mode === 'white' ? ' on' : '')}>Beyaz</span>
-      </span>
-    </button>
-  );
-}
-
-function Nav({ active, onJump, scrolled, lightMode, setLightMode }) {
+function Nav({ active, onJump, onOpenRefs, scrolled }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const items = [
-    { id: 'home', label: 'Anasayfa' },
     { id: 'projects', label: 'Projeler' },
+    { id: 'references', label: 'Referanslar', modal: true },
     { id: 'about', label: 'Hakkımızda' },
-    { id: 'references', label: 'Referanslar' },
-    { id: 'portfolio', label: 'Portfolyo' },
+    { id: 'contact', label: 'İletişim' },
   ];
-  const jump = (id) => { setMenuOpen(false); onJump(id); };
+  const handle = (it) => {
+    setMenuOpen(false);
+    if (it.modal) { onOpenRefs(); } else { onJump(it.id); }
+  };
   return (
     <>
       <header className={'nav ' + (scrolled ? 'scrolled' : '')}>
-        <div className="brand" onClick={() => jump('home')}>
+        <div className="brand" onClick={() => { setMenuOpen(false); onJump('home'); }}>
           <img src="/logo.png" alt="BSD Design Studio" className="brand-logo" />
         </div>
         <nav className="links">
           {items.map(it => (
             <a key={it.id} href={'#' + it.id} className={active === it.id ? 'active' : ''}
-               onClick={(e) => { e.preventDefault(); jump(it.id); }}>
+               onClick={(e) => { e.preventDefault(); handle(it); }}>
               {it.label}
             </a>
           ))}
         </nav>
         <div className="meta">
-          <LightToggle mode={lightMode} onChange={setLightMode} />
           <button className="hamburger" onClick={() => setMenuOpen(v => !v)} aria-label="Menü">
             <span className={menuOpen ? 'open' : ''}></span>
             <span className={menuOpen ? 'open' : ''}></span>
@@ -76,16 +53,17 @@ function Nav({ active, onJump, scrolled, lightMode, setLightMode }) {
         </div>
       </header>
       {menuOpen && (
-        <div className="mobile-menu">
-          {items.map(it => (
-            <a key={it.id} href={'#' + it.id} className={active === it.id ? 'active' : ''}
-               onClick={(e) => { e.preventDefault(); jump(it.id); }}>
-              {it.label}
-            </a>
-          ))}
-          <a href="#contact" onClick={(e) => { e.preventDefault(); jump('contact'); }} className="mob-cta">İletişime Geç →</a>
-          <div className="mob-light"><LightToggle mode={lightMode} onChange={setLightMode} /></div>
-        </div>
+        <>
+          <div className="menu-overlay" onClick={() => setMenuOpen(false)} />
+          <div className="mobile-menu">
+            {items.map(it => (
+              <a key={it.id} href={'#' + it.id} className={active === it.id ? 'active' : ''}
+                 onClick={(e) => { e.preventDefault(); handle(it); }}>
+                {it.label}
+              </a>
+            ))}
+          </div>
+        </>
       )}
     </>
   );
@@ -273,27 +251,36 @@ function Studio() {
   );
 }
 
-function References() {
+function ReferencesModal({ onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+  }, [onClose]);
   return (
-    <section id="references" className="marquee-section">
-      <div className="head">
-        <h3>Güven duyduğumuz <span className="it">markalar.</span></h3>
-        <div className="right">
-          Kütahya ve çevre illerde KOBİ'lerden kurumsal yapılara, perakendeden sanayi tesislerine geniş bir yelpazede hizmet verdik.
+    <>
+      <div className="pd-overlay" onClick={onClose}></div>
+      <aside className="pd ref-modal">
+        <div className="head">
+          <span className="mono" style={{ color: 'var(--gold)' }}>— Referanslar</span>
+          <button className="close" onClick={onClose}>Kapat <span className="x">×</span></button>
         </div>
-      </div>
-      <div className="marquee">
-        <div className="marquee-track">
-          {[...CLIENTS, ...CLIENTS].map((c, i) => (
-            <div key={i} className="logo">
-              <span className="dot"></span>
-              <span>{c}</span>
-              <span className="sm">EST.</span>
-            </div>
-          ))}
+        <div className="body">
+          <span className="eyebrow" style={{ color: 'var(--gold)' }}>— Güven duyduğumuz markalar</span>
+          <h1>Referans<span className="it">larımız.</span></h1>
+          <p style={{ marginTop: 12 }}>Kütahya ve çevre illerde KOBİ'lerden kurumsal yapılara, perakendeden sanayi tesislerine geniş bir yelpazede hizmet verdik.</p>
+          <div className="ref-grid">
+            {CLIENTS.map((c, i) => (
+              <div key={i} className="ref-item">
+                <span className="ref-no">{String(i + 1).padStart(2, '0')}</span>
+                <span className="ref-name">{c}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </aside>
+    </>
   );
 }
 
@@ -575,21 +562,12 @@ export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState('home');
   const [openId, setOpenId] = useState(null);
-  const [lightMode, setLightMode] = useState('day');
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (lightMode === 'white') {
-      root.setAttribute('data-light', 'white');
-    } else {
-      root.removeAttribute('data-light');
-    }
-  }, [lightMode]);
+  const [refOpen, setRefOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 60);
-      const sections = ['home', 'projects', 'about', 'references', 'portfolio', 'contact'];
+      const sections = ['home', 'projects', 'about', 'studio', 'portfolio', 'contact'];
       let cur = 'home';
       for (const s of sections) {
         const el = document.getElementById(s);
@@ -612,7 +590,7 @@ export default function App() {
   return (
     <>
       <CursorGlow />
-      <Nav active={active} onJump={onJump} scrolled={scrolled} lightMode={lightMode} setLightMode={setLightMode} />
+      <Nav active={active} onJump={onJump} onOpenRefs={() => setRefOpen(true)} scrolled={scrolled} />
       <Hero onJump={onJump} />
       <Divider />
       <div className="sf"><Featured openProject={setOpenId} /></div>
@@ -620,8 +598,6 @@ export default function App() {
       <div className="sf"><About /></div>
       <Divider />
       <div className="sf"><Studio /></div>
-      <Divider />
-      <div className="sf"><References /></div>
       <Divider />
       <div className="sf"><Portfolio openProject={setOpenId} /></div>
       <Divider />
@@ -631,6 +607,7 @@ export default function App() {
       <Divider />
       <Footer onJump={onJump} />
       <KvkkBanner />
+      {refOpen && <ReferencesModal onClose={() => setRefOpen(false)} />}
       {openId && <ProjectDetail id={openId} onClose={() => setOpenId(null)} openProject={setOpenId} />}
     </>
   );
