@@ -29,9 +29,21 @@ export const PROJECTS = [
     summary: "AVM içi yönlendirme sistemi, ışıklı mağaza tabelaları ve tanıtım standlarının tasarım, üretim ve montajı. Toplamda 47 uygulama noktası.",
     img: IMG("1604014237800-1c9102c219da"),
     gallery: [IMG("1487958449943-2429e8be8625"), IMG("1542314831-068cd1dbfeeb"), IMG("1571896349842-33c89424de2d")] },
+  { id: "kurumsal-tabela", no: "08", title: "Kurumsal", titleIt: "Tabela Sistemi", cat: "Reklam", where: "OSB / Kütahya", year: "2023", area: "—", status: "Tamamlandı", role: "Dış Mekan Reklam",
+    summary: "Sanayi bölgesindeki kurumsal firmalara yönelik bütünleşik tabela ve yönlendirme sistemi. Alüminyum kompozit kaplama, kutu harf ve dijital baskı uygulamaları.",
+    img: IMG("1486325212027-8081e485255e"),
+    gallery: [IMG("1497215728101-856f4ea42174"), IMG("1564501049412-61c2a3083791"), IMG("1520637836862-4d197d17c50a")] },
+  { id: "led-aydinlatma", no: "09", title: "LED", titleIt: "Aydınlatma Projesi", cat: "LED Tabela", where: "Kütahya Merkez, TR", year: "2023", area: "—", status: "Tamamlandı", role: "LED Tasarım · Uygulama",
+    summary: "Şehir merkezi cadde cephelerinde uygulanan LED aydınlatma ve tabela sistemi. Enerji tasarruflu RGB modüller ve programlanabilir kontrol ünitesi.",
+    img: IMG("1504307651254-35680f356dfd"),
+    gallery: [IMG("1558618666-fcd25c85cd64"), IMG("1551516594-56cb78394645"), IMG("1497215728101-856f4ea42174")] },
+  { id: "led-magaza", no: "10", title: "Mağaza", titleIt: "LED Cephe", cat: "LED Tabela", where: "Kütahya, TR", year: "2024", area: "—", status: "Aktif", role: "LED · Tabela Tasarım",
+    summary: "Perakende mağaza cephesinde uygulanan LED kanal harf ve arka aydınlatmalı totem sistemi. Gündüz ve gece görünürlüğü için optimize edilmiş çözüm.",
+    img: IMG("1571896349842-33c89424de2d"),
+    gallery: [IMG("1504307651254-35680f356dfd"), IMG("1558618666-fcd25c85cd64"), IMG("1551516594-56cb78394645")] },
 ];
 
-export const CATEGORIES = ["All", "Reklam", "İç Mimarlık", "Mobilya", "LED Tabela"];
+export const CATEGORIES = ["Reklam", "İç Mimarlık", "Mobilya", "LED Tabela"];
 
 export const PILLARS = [
   { no: "01", title: "Tasarım", it: "kalitesi", desc: "Her projeyi işlevsellik ve estetik dengesinde kuruyoruz; görsellik kadar uygulanabilirlik de tasarımın merkezinde." },
