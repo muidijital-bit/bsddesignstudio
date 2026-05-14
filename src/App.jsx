@@ -88,8 +88,10 @@ function Hero({ onJump }) {
         <p className="hero-sub">Mimari tasarım, iç mekân uygulama ve proje üretiminde bütüncül çözümler.</p>
       </div>
       <div className="scroll-down" onClick={() => onJump('projects')}>
-        <div className="scroll-down-mouse"><div className="scroll-down-wheel"></div></div>
-        <span>Aşağı Kaydır</span>
+        <svg className="scroll-arrow" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4l8 8 8-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M4 12l8 8 8-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </div>
     </section>
   );
@@ -255,7 +257,6 @@ function Contact({ onJump }) {
                 <textarea value={form.msg} onChange={e=>setForm({...form, msg: e.target.value})} placeholder="Kısa bilgi, konum ve beklentileriniz..." rows="3"></textarea>
               </div>
               <button className="c-submit" type="submit">Mesajı Gönder <span>→</span></button>
-              <span className="c-kvkk">Bilgiler stüdyo dışına çıkmaz · KVKK uyumludur</span>
             </form>
           )}
         </div>

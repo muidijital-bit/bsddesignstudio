@@ -64,7 +64,7 @@ export const SOCIALS = [
 ];
 
 export const HERO_SLIDES = [
-  { img: IMG("1497366216548-37526070297c", 2200), num: "01 / 03" },
-  { img: IMG("1555041469-149851dc8909", 2200), num: "02 / 03" },
-  { img: IMG("1600607687939-ce8a6c25118c", 2200), num: "03 / 03" },
+  { img: "https://images.unsplash.com/photo-1495985812444-236d6a87bdd9?w=2200&q=80&auto=format&fit=crop", num: "01 / 03" },
+  { img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=2200&q=80&auto=format&fit=crop", num: "02 / 03" },
+  { img: "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=2200&q=80&auto=format&fit=crop", num: "03 / 03" },
 ];
